@@ -114,11 +114,11 @@ func rateLimitByToken(tb *ginratelimit.TokenBucket) gin.HandlerFunc {
 func main() {
 	r := gin.Default()
 
-	r.POST("/register", registerHandler)
-	r.POST("/login", loginHandler)
-	r.GET("/profile", rateLimitByToken(tb), authMiddleware(), getProfileHandler)
-	r.PUT("/profile", rateLimitByToken(tb), authMiddleware(), putProfileHandler)
-	r.GET("/admin/data", rateLimitByToken(tb), authMiddleware(), dataHandler)
+	r.POST("/register", RegisterHandler)
+	r.POST("/login", LoginHandler)
+	r.GET("/profile", rateLimitByToken(tb), authMiddleware(), GetProfileHandler)
+	r.PUT("/profile", rateLimitByToken(tb), authMiddleware(), PutProfileHandler)
+	r.GET("/admin/data", rateLimitByToken(tb), authMiddleware(), DataHandler)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)

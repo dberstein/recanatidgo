@@ -29,7 +29,7 @@ func GetPwhash(username string) (string, error) {
 	return pwhash, nil
 }
 
-func loginHandler(c *gin.Context) {
+func LoginHandler(c *gin.Context) {
 	user := &UserCredentials{}
 	if err := c.BindJSON(user); err != nil { // Unmarshall request body ...
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func dataHandler(c *gin.Context) {
+func DataHandler(c *gin.Context) {
 	username, _ := c.Get("username")
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Hello, %v! This is a protected route.", username)})
 }

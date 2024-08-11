@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerHandler(c *gin.Context) {
+func RegisterHandler(c *gin.Context) {
 	user := &RegisterUser{}
 	if err := c.BindJSON(user); err != nil { // Unmarshall request body ...
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
