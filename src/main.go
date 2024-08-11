@@ -35,7 +35,6 @@ func init() {
 	db = GetDb()
 	// Create a new token bucket rate limiter
 	tb = ginratelimit.NewTokenBucket(5, 1*time.Minute) // 5 requests per minute
-
 }
 
 func GetDb() *sql.DB {
@@ -101,11 +100,12 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
+// rateLimitByToken is a middleware that rate limits according to TokenBucket and from request's JWT token
 func rateLimitByToken(tb *ginratelimit.TokenBucket) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := GetBearerToken(c.GetHeader("Authorization"))
-		if tokenString != "" {
-			rate := ginratelimit.RateLimitByUserId(tb, tokenString)
+		token := GetBearerToken(c.GetHeader("Authorization"))
+		if token != "" {
+			rate := ginratelimit.RateLimitByUserId(tb, token)
 			rate(c)
 		}
 	}
