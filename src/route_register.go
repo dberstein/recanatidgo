@@ -34,7 +34,4 @@ func RegisterHandler(c *gin.Context) {
 	}
 
 	validResponse(c, &UserCredentials{Username: user.Username})
-
-	// user.Password = "*redacted*"
-	// c.JSON(http.StatusCreated, gin.H{"user": user})
 }

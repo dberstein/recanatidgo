@@ -44,9 +44,19 @@ func PutProfileHandler(c *gin.Context) {
 		}
 	}
 
-	// if user.Password != "" {
-	// 	// todo: update pwhash
-	// }
+	if user.Password != "" {
+		pwhash, err := HashPassword(user.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		_, err = db.Exec(`UPDATE users SET pwhash = ? WHERE username = ?`, &pwhash, username)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
 
 	if user.Role != "" {
 		_, err := db.Exec(`UPDATE users SET role = ? WHERE username = ?`, &user.Role, username)
