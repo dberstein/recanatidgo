@@ -27,26 +27,41 @@ type RegisterUser struct {
 	Email    string `json:"email"`
 }
 
-var jwtSecretKey = []byte("your-secret-key")
+// See init() for initialization
 var db *sql.DB
 var tb *ginratelimit.TokenBucket
 
+var dsn = "x.db"                             // todo: parametrize
+var listenAddr string = ":8080"              // todo: parametrize
+var rate_threshold = 5                       // todo: parametrize
+var rate_ttl = 1 * time.Minute               // todo: parametrize
+var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
+
 func init() {
 	db = GetDb()
-	// Create a new token bucket rate limiter
-	tb = ginratelimit.NewTokenBucket(5, 1*time.Minute) // 5 requests per minute
+
+	// Create a new token bucket rate limiter; ie. threshold requests per ttl time
+	tb = ginratelimit.NewTokenBucket(rate_threshold, rate_ttl)
 }
 
-func GetDb() *sql.DB {
-	db, err := sql.Open("sqlite3", "x.db")
-	if err != nil {
-		panic(err)
-	}
-
+func ensureSchema(db *sql.DB) error {
 	if _, err := db.Exec(
 		"CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, pwhash TEXT, email TEXT, role TEXT)",
 	); err != nil {
-		panic(err)
+		return err
+	}
+	return nil
+}
+
+func GetDb() *sql.DB {
+	db, err := sql.Open("sqlite3", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ensureSchema(db)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return db
@@ -120,7 +135,7 @@ func main() {
 	r.PUT("/profile", rateLimitByToken(tb), authMiddleware(), PutProfileHandler)
 	r.GET("/admin/data", rateLimitByToken(tb), authMiddleware(), DataHandler)
 
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run(listenAddr); err != nil {
 		log.Fatal(err)
 	}
 }
