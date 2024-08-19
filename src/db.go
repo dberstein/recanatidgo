@@ -20,6 +20,10 @@ func getDb(dsn string) *sql.DB {
 		log.Fatal(err)
 	}
 
+	if err = db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
 	err = ensureSchema(db)
 	if err != nil {
 		log.Fatal(err)

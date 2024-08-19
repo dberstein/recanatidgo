@@ -41,6 +41,8 @@ func init() {
 }
 
 func main() {
+	defer db.Close()
+
 	r := gin.Default()
 
 	r.POST("/register", RegisterHandler(db))
