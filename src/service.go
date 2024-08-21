@@ -23,9 +23,9 @@ func (s *Service) Serve() {
 
 	r.POST("/register", RegisterHandler(s.db))
 	r.POST("/login", LoginHandler(s.db))
-	r.GET("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(s.db), GetProfileHandler(s.db))
-	r.PUT("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(s.db), PutProfileHandler(s.db))
-	r.GET("/admin/data", rateLimitByTokenMiddleware(s.tb), authMiddleware(s.db), DataHandler(s.db))
+	r.GET("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), GetProfileHandler(s.db))
+	r.PUT("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), PutProfileHandler(s.db))
+	r.GET("/admin/data", rateLimitByTokenMiddleware(s.tb), authMiddleware(), DataHandler(s.db))
 
 	if err := r.Run(s.addr); err != nil {
 		log.Fatal(err)

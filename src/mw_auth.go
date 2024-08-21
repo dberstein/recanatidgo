@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -10,7 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func authMiddleware(db *sql.DB) gin.HandlerFunc {
+func authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getBearerToken(c.GetHeader("Authorization"))
 		if tokenString == "" {
