@@ -14,12 +14,8 @@ type Service struct {
 	tb   *ginratelimit.TokenBucket
 }
 
-func NewService(listenAddr string, db *sql.DB, tb *ginratelimit.TokenBucket) *Service {
-	return &Service{
-		addr: listenAddr,
-		db:   db,
-		tb:   tb,
-	}
+func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket) *Service {
+	return &Service{addr: addr, db: db, tb: tb}
 }
 
 func (s *Service) Serve() {

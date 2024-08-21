@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"time"
 
 	ginratelimit "github.com/ljahier/gin-ratelimit"
@@ -21,18 +22,21 @@ type RegisterUser struct {
 }
 
 var dsn = "x.db"                             // todo: parametrize
-var listenAddr string = ":8080"              // todo: parametrize
 var rate_threshold = 5                       // todo: parametrize
 var rate_ttl = 1 * time.Minute               // todo: parametrize
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
 
 func main() {
+	addrPtr := flag.String("addr", ":8080", "Listen address")
+
+	flag.Parse()
+
 	db := getDb(dsn)
 	defer db.Close()
 
 	// Create a new token bucket rate limiter; ie. threshold requests per ttl time
 	tb := ginratelimit.NewTokenBucket(rate_threshold, rate_ttl)
 
-	s := NewService(listenAddr, db, tb)
+	s := NewService(*addrPtr, db, tb)
 	s.Serve()
 }
