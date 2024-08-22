@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"log"
 	"time"
 
+	"github.com/joho/godotenv"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -27,6 +29,11 @@ var rate_ttl = 1 * time.Minute               // todo: parametrize
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	addrPtr := flag.String("addr", ":8080", "Listen address")
 
 	flag.Parse()
