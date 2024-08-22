@@ -19,7 +19,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 	return p, nil
 }
 
-func dataHandler(owm *Owm) gin.HandlerFunc {
+func dataHandler(owm Owmer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
 

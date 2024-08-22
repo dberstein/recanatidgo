@@ -11,6 +11,10 @@ type Owm struct {
 	apiKey string
 }
 
+type Owmer interface {
+	Query(string) (*OwmData, error)
+}
+
 type OwmDataMain struct {
 	Temp    float32 `json:"temp"`
 	TempMin float32 `json:"temp_min"`

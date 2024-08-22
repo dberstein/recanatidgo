@@ -47,6 +47,6 @@ func main() {
 
 	owm := NewOwm(os.Getenv("OWM_API_KEY"))
 
-	s := NewService(*addrPtr, db, tb)
-	s.Serve(owm)
+	s := NewService(*addrPtr, db, tb, owm)
+	s.Serve()
 }
