@@ -1,10 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +19,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 	return p, nil
 }
 
-func DataHandler(db *sql.DB) gin.HandlerFunc {
+func dataHandler(owm *Owm) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
 
@@ -33,7 +31,6 @@ func DataHandler(db *sql.DB) gin.HandlerFunc {
 		ps := 10
 		skip := (p - 1) * ps
 
-		owm := NewOwm(os.Getenv("OWM_API_KEY"))
 		data, err := owm.Query(c.Query("location"))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

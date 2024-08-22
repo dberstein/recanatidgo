@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterHandler(db *sql.DB) gin.HandlerFunc {
+func registerHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &RegisterUser{}
 		if err := c.BindJSON(user); err != nil { // Unmarshall request body ...

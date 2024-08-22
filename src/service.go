@@ -18,14 +18,14 @@ func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket) *Service 
 	return &Service{addr: addr, db: db, tb: tb}
 }
 
-func (s *Service) Serve() {
+func (s *Service) Serve(owm *Owm) {
 	r := gin.Default()
 
-	r.POST("/register", RegisterHandler(s.db))
-	r.POST("/login", LoginHandler(s.db))
-	r.GET("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), GetProfileHandler(s.db))
-	r.PUT("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), PutProfileHandler(s.db))
-	r.GET("/admin/data", rateLimitByTokenMiddleware(s.tb), authMiddleware(), DataHandler(s.db))
+	r.POST("/register", registerHandler(s.db))
+	r.POST("/login", loginHandler(s.db))
+	r.GET("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), getProfileHandler(s.db))
+	r.PUT("/profile", rateLimitByTokenMiddleware(s.tb), authMiddleware(), putProfileHandler(s.db))
+	r.GET("/admin/data", rateLimitByTokenMiddleware(s.tb), authMiddleware(), dataHandler(owm))
 
 	if err := r.Run(s.addr); err != nil {
 		log.Fatal(err)

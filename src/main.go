@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -44,6 +45,8 @@ func main() {
 	// Create a new token bucket rate limiter; ie. threshold requests per ttl time
 	tb := ginratelimit.NewTokenBucket(rate_threshold, rate_ttl)
 
+	owm := NewOwm(os.Getenv("OWM_API_KEY"))
+
 	s := NewService(*addrPtr, db, tb)
-	s.Serve()
+	s.Serve(owm)
 }

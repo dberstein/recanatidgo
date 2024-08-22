@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
+func getProfileHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, exists := c.Get("username")
 		if !exists {
@@ -26,7 +26,7 @@ func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func PutProfileHandler(db *sql.DB) gin.HandlerFunc {
+func putProfileHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &RegisterUser{}
 		if err := c.BindJSON(user); err != nil {

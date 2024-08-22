@@ -30,7 +30,7 @@ func getPwhash(db *sql.DB, username string) (string, error) {
 	return pwhash, nil
 }
 
-func LoginHandler(db *sql.DB) gin.HandlerFunc {
+func loginHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &UserCredentials{}
 		if err := c.BindJSON(user); err != nil {
