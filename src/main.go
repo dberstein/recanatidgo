@@ -34,7 +34,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	addrPtr := flag.String("addr", ":8080", "Listen address")
+	addrPtr := flag.String("addr", "0.0.0.0:8080", "Listen address")
 
 	flag.Parse()
 
