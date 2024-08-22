@@ -14,6 +14,18 @@ func RegisterHandler(db *sql.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		if user.Username == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing: username"})
+		}
+		if user.Password == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing: password"})
+		}
+		if user.Email == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Missing: email"})
+		}
+		// if user.Role == "" {
+		// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing: role"})
+		// }
 
 		pwhash, err := hashPassword(user.Password)
 		if err != nil {
