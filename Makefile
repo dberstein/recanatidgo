@@ -1,4 +1,4 @@
 run:
-	@go run src/*
+	@go run src/*.go
 build:
-	@go build -o recanatid src/*
+	@go build -o recanatid src/*.go
