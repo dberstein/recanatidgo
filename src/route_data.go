@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/dberstein/recanatid-go/src/owm"
 )
 
 func getCurrentPage(c *gin.Context) (int, error) {
@@ -19,7 +21,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 	return p, nil
 }
 
-func dataHandler(owm Owmer) gin.HandlerFunc {
+func dataHandler(o owm.Owmer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
 
@@ -31,7 +33,7 @@ func dataHandler(owm Owmer) gin.HandlerFunc {
 		ps := 10
 		skip := (p - 1) * ps
 
-		data, err := owm.Query(c.Query("location"))
+		data, err := o.Query(c.Query("location"))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
+	"github.com/dberstein/recanatid-go/src/owm"
 	"github.com/dberstein/recanatid-go/src/token"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -79,7 +80,7 @@ func main() {
 		*addrPtr,
 		db,
 		ginratelimit.NewTokenBucket(rate, ttl),
-		NewOwm(*owmPtr),
+		owm.NewOwm(*owmPtr),
 		token.NewJWTMaker(jwtSecretKey),
 	)
 	s.Serve()
