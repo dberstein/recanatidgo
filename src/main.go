@@ -24,7 +24,7 @@ type RegisterUser struct {
 	Email    string `json:"email"`
 }
 
-var dsn = "x.db"                             // todo: parametrize
+var dsn string
 var rate_threshold = 5                       // todo: parametrize
 var rate_ttl = 1 * time.Minute               // todo: parametrize
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
@@ -36,17 +36,21 @@ func main() {
 	}
 
 	addrPtr := flag.String("addr", "0.0.0.0:8080", "Listen address")
+	dsnPtr := flag.String("dsn", "x.db", "Database DSN")
+	owmPtr := flag.String("owm", os.Getenv("OWM_API_KEY"), "OWM API key")
 
 	flag.Parse()
+
+	dsn = *dsnPtr
 
 	db := getDb(dsn)
 	defer db.Close()
 
-	// Create a new token bucket rate limiter; ie. threshold requests per ttl time
-	tb := ginratelimit.NewTokenBucket(rate_threshold, rate_ttl)
-
-	owm := NewOwm(os.Getenv("OWM_API_KEY"))
-
-	s := NewService(*addrPtr, db, tb, owm)
+	s := NewService(
+		*addrPtr,
+		db,
+		ginratelimit.NewTokenBucket(rate_threshold, rate_ttl),
+		NewOwm(*owmPtr),
+	)
 	s.Serve()
 }
