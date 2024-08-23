@@ -1,18 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-func createToken(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24 * 14).Unix(),
-	})
-	return token.SignedString(jwtSecretKey)
+type JWTMaker struct {
+	secret []byte
 }
 
 func getBearerToken(token string) string {
@@ -21,4 +18,25 @@ func getBearerToken(token string) string {
 		return bearer[1]
 	}
 	return ""
+}
+
+func NewJWTMaker(secret []byte) *JWTMaker {
+	return &JWTMaker{secret: secret}
+}
+
+func (j *JWTMaker) CreateToken(username string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": username,
+		"exp":      time.Now().Add(time.Hour * 24 * 14).Unix(),
+	})
+	return token.SignedString(j.secret)
+}
+
+func (j *JWTMaker) Parse(tokenString string) (*jwt.Token, error) {
+	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return j.secret, nil
+	})
 }

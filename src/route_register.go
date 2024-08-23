@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerHandler(db *sql.DB) gin.HandlerFunc {
+func registerHandler(db *sql.DB, jwtMaker *JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &RegisterUser{}
 		if err := c.BindJSON(user); err != nil { // Unmarshall request body ...
@@ -46,6 +46,6 @@ func registerHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		validLoginResponse(c, &UserCredentials{Username: user.Username})
+		validLoginResponse(c, &UserCredentials{Username: user.Username}, jwtMaker)
 	}
 }

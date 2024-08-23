@@ -8,8 +8,8 @@ import (
 )
 
 // validLoginResponse writes access token or error
-func validLoginResponse(c *gin.Context, user *UserCredentials) {
-	token, err := createToken(user.Username)
+func validLoginResponse(c *gin.Context, user *UserCredentials, jwtMaker *JWTMaker) {
+	token, err := jwtMaker.CreateToken(user.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
 		return
@@ -30,7 +30,7 @@ func getPwhash(db *sql.DB, username string) (string, error) {
 	return pwhash, nil
 }
 
-func loginHandler(db *sql.DB) gin.HandlerFunc {
+func loginHandler(db *sql.DB, jwtMaker *JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &UserCredentials{}
 		if err := c.BindJSON(user); err != nil {
@@ -46,7 +46,7 @@ func loginHandler(db *sql.DB) gin.HandlerFunc {
 
 		valid := checkPasswordHash(user.Password, pwhash)
 		if valid {
-			validLoginResponse(c, user)
+			validLoginResponse(c, user, jwtMaker)
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		}

@@ -78,6 +78,7 @@ func main() {
 		db,
 		ginratelimit.NewTokenBucket(rate, ttl),
 		NewOwm(*owmPtr),
+		NewJWTMaker(jwtSecretKey),
 	)
 	s.Serve()
 }
