@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -25,9 +28,27 @@ type RegisterUser struct {
 }
 
 var dsn string
-var rate_threshold = 5                       // todo: parametrize
-var rate_ttl = 1 * time.Minute               // todo: parametrize
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
+
+func parseRateString(s string) (int, time.Duration, error) {
+	rateTmp := strings.Split(s, "/")
+	rate, err := strconv.Atoi(rateTmp[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	if rate <= 0 {
+		return rate, 0, errors.New("rate has to be greater than zero")
+	}
+
+	ttl, err := time.ParseDuration(rateTmp[1])
+	if err != nil {
+		return rate, 0, err
+	}
+	if ttl <= 0 {
+		return rate, ttl, errors.New("rate's TTL has to be greater than zero")
+	}
+	return rate, ttl, nil
+}
 
 func main() {
 	err := godotenv.Load()
@@ -38,6 +59,7 @@ func main() {
 	addrPtr := flag.String("addr", "0.0.0.0:8080", "Listen address")
 	dsnPtr := flag.String("dsn", "x.db", "Database DSN")
 	owmPtr := flag.String("owm", os.Getenv("OWM_API_KEY"), "OWM API key")
+	ratePtr := flag.String("rate", "5/1m", "Rate limit string: \"<rate>/<ttl>\"")
 
 	flag.Parse()
 
@@ -46,10 +68,15 @@ func main() {
 	db := getDb(dsn)
 	defer db.Close()
 
+	rate, ttl, err := parseRateString(*ratePtr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	s := NewService(
 		*addrPtr,
 		db,
-		ginratelimit.NewTokenBucket(rate_threshold, rate_ttl),
+		ginratelimit.NewTokenBucket(rate, ttl),
 		NewOwm(*owmPtr),
 	)
 	s.Serve()
