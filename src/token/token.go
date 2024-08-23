@@ -1,4 +1,4 @@
-package main
+package token
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ type JWTMaker struct {
 	secret []byte
 }
 
-func getBearerToken(token string) string {
+func GetBearerToken(token string) string {
 	bearer := strings.Split(token, "Bearer ")
 	if len(bearer) > 1 {
 		return bearer[1]

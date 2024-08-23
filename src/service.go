@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
+
+	"github.com/dberstein/recanatid-go/src/token"
 )
 
 type Service struct {
@@ -13,10 +15,10 @@ type Service struct {
 	db       *sql.DB
 	tb       *ginratelimit.TokenBucket
 	owm      Owmer
-	jwtMaker *JWTMaker
+	jwtMaker *token.JWTMaker
 }
 
-func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket, owm Owmer, jwtMaker *JWTMaker) *Service {
+func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket, owm Owmer, jwtMaker *token.JWTMaker) *Service {
 	return &Service{addr: addr, db: db, tb: tb, owm: owm, jwtMaker: jwtMaker}
 }
 

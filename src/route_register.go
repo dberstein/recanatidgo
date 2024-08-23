@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/dberstein/recanatid-go/src/token"
 	"github.com/gin-gonic/gin"
 )
 
-func registerHandler(db *sql.DB, jwtMaker *JWTMaker) gin.HandlerFunc {
+func registerHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &RegisterUser{}
 		if err := c.BindJSON(user); err != nil { // Unmarshall request body ...

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/dberstein/recanatid-go/src/token"
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 )
@@ -8,7 +9,7 @@ import (
 // rateLimitByToken is a middleware that rate limits according to TokenBucket and from request's JWT token
 func rateLimitByTokenMiddleware(tb *ginratelimit.TokenBucket) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := getBearerToken(c.GetHeader("Authorization"))
+		token := token.GetBearerToken(c.GetHeader("Authorization"))
 		if token != "" {
 			rate := ginratelimit.RateLimitByUserId(tb, token)
 			rate(c)

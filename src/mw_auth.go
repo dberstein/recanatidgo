@@ -5,12 +5,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/dberstein/recanatid-go/src/token"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
-func authMiddleware(jwtMaker *JWTMaker) gin.HandlerFunc {
+func authMiddleware(jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := getBearerToken(c.GetHeader("Authorization"))
+		tokenString := token.GetBearerToken(c.GetHeader("Authorization"))
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			c.Abort()
