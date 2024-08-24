@@ -2,7 +2,6 @@ package svc
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
@@ -14,16 +13,14 @@ import (
 )
 
 type Service struct {
-	addr     string
 	db       *sql.DB
 	tb       *ginratelimit.TokenBucket
 	owmer    owm.Owmer
 	jwtMaker *token.JWTMaker
 }
 
-func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket, owmer owm.Owmer, jwtMaker *token.JWTMaker) *Service {
+func NewService(db *sql.DB, tb *ginratelimit.TokenBucket, owmer owm.Owmer, jwtMaker *token.JWTMaker) *Service {
 	return &Service{
-		addr:     addr,
 		db:       db,
 		tb:       tb,
 		owmer:    owmer,
@@ -31,7 +28,7 @@ func NewService(addr string, db *sql.DB, tb *ginratelimit.TokenBucket, owmer owm
 	}
 }
 
-func (s *Service) Serve() {
+func (s *Service) Serve(addr string) error {
 	r := gin.Default()
 
 	r.POST("/register", handler.RegisterHandler(s.db, s.jwtMaker))
@@ -40,7 +37,5 @@ func (s *Service) Serve() {
 	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.PutProfileHandler(s.db))
 	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.DataHandler(s.owmer))
 
-	if err := r.Run(s.addr); err != nil {
-		log.Fatal(err)
-	}
+	return r.Run(addr)
 }

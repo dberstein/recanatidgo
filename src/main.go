@@ -67,11 +67,13 @@ func main() {
 	}
 
 	s := svc.NewService(
-		*addrPtr,
 		dbcon,
 		ginratelimit.NewTokenBucket(rate, ttl),
 		owm.NewOwm(*owmPtr),
 		token.NewJWTMaker(jwtSecretKey),
 	)
-	s.Serve()
+
+	if err := s.Serve(*addrPtr); err != nil {
+		log.Fatal(err)
+	}
 }
