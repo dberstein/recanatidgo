@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/src/hash"
-	"github.com/dberstein/recanatid-go/src/typ"
+	"github.com/dberstein/recanatid-go/hash"
+	"github.com/dberstein/recanatid-go/typ"
 )
 
 func GetProfileHandler(db *sql.DB) gin.HandlerFunc {

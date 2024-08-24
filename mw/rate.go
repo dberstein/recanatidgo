@@ -1,7 +1,7 @@
 package mw
 
 import (
-	"github.com/dberstein/recanatid-go/src/token"
+	"github.com/dberstein/recanatid-go/token"
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 )

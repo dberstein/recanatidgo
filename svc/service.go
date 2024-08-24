@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
-	"github.com/dberstein/recanatid-go/src/handler"
-	"github.com/dberstein/recanatid-go/src/mw"
-	"github.com/dberstein/recanatid-go/src/owm"
-	"github.com/dberstein/recanatid-go/src/token"
+	"github.com/dberstein/recanatid-go/handler"
+	"github.com/dberstein/recanatid-go/mw"
+	"github.com/dberstein/recanatid-go/owm"
+	"github.com/dberstein/recanatid-go/token"
 )
 
 type Service struct {

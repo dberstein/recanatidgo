@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/src/token"
+	"github.com/dberstein/recanatid-go/token"
 
 	"github.com/dgrijalva/jwt-go"
 )
