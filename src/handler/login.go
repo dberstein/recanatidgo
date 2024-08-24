@@ -1,15 +1,17 @@
-package main
+package handler
 
 import (
 	"database/sql"
 	"net/http"
 
+	"github.com/dberstein/recanatid-go/src/hash"
 	"github.com/dberstein/recanatid-go/src/token"
+	"github.com/dberstein/recanatid-go/src/typ"
 	"github.com/gin-gonic/gin"
 )
 
 // validLoginResponse writes access token or error
-func validLoginResponse(c *gin.Context, user *UserCredentials, jwtMaker *token.JWTMaker) {
+func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker *token.JWTMaker) {
 	token, err := jwtMaker.CreateToken(user.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
@@ -31,9 +33,9 @@ func getPwhash(db *sql.DB, username string) (string, error) {
 	return pwhash, nil
 }
 
-func loginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
+func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := &UserCredentials{}
+		user := &typ.UserCredentials{}
 		if err := c.BindJSON(user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -45,7 +47,7 @@ func loginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		valid := checkPasswordHash(user.Password, pwhash)
+		valid := hash.CheckPasswordHash(user.Password, pwhash)
 		if valid {
 			validLoginResponse(c, user, jwtMaker)
 		} else {

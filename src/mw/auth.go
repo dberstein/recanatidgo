@@ -1,4 +1,4 @@
-package main
+package mw
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func authMiddleware(jwtMaker *token.JWTMaker) gin.HandlerFunc {
+func AuthMiddleware(jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := token.GetBearerToken(c.GetHeader("Authorization"))
 		if tokenString == "" {

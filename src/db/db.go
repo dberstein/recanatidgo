@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -14,7 +14,7 @@ func ensureSchema(db *sql.DB) error {
 	return nil
 }
 
-func getDb(dsn string) *sql.DB {
+func GetDb(dsn string) *sql.DB {
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		log.Fatal(err)

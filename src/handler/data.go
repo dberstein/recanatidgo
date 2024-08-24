@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 	return p, nil
 }
 
-func dataHandler(o owm.Owmer) gin.HandlerFunc {
+func DataHandler(o owm.Owmer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
 

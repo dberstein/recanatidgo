@@ -1,16 +1,18 @@
-package main
+package handler
 
 import (
 	"database/sql"
 	"net/http"
 
+	"github.com/dberstein/recanatid-go/src/hash"
 	"github.com/dberstein/recanatid-go/src/token"
+	"github.com/dberstein/recanatid-go/src/typ"
 	"github.com/gin-gonic/gin"
 )
 
-func registerHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
+func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := &RegisterUser{}
+		user := &typ.RegisterUser{}
 		if err := c.BindJSON(user); err != nil { // Unmarshall request body ...
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -32,7 +34,7 @@ func registerHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 		//  return
 		// }
 
-		pwhash, err := hashPassword(user.Password)
+		pwhash, err := hash.HashPassword(user.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -47,6 +49,6 @@ func registerHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		validLoginResponse(c, &UserCredentials{Username: user.Username}, jwtMaker)
+		validLoginResponse(c, &typ.UserCredentials{Username: user.Username}, jwtMaker)
 	}
 }

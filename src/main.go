@@ -12,23 +12,13 @@ import (
 	"github.com/joho/godotenv"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
+	"github.com/dberstein/recanatid-go/src/db"
 	"github.com/dberstein/recanatid-go/src/owm"
+	"github.com/dberstein/recanatid-go/src/svc"
 	"github.com/dberstein/recanatid-go/src/token"
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-type UserCredentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type RegisterUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
-	Email    string `json:"email"`
-}
 
 var dsn string
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
@@ -68,17 +58,17 @@ func main() {
 
 	dsn = *dsnPtr
 
-	db := getDb(dsn)
-	defer db.Close()
+	dbcon := db.GetDb(dsn)
+	defer dbcon.Close()
 
 	rate, ttl, err := parseRateString(*ratePtr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s := NewService(
+	s := svc.NewService(
 		*addrPtr,
-		db,
+		dbcon,
 		ginratelimit.NewTokenBucket(rate, ttl),
 		owm.NewOwm(*owmPtr),
 		token.NewJWTMaker(jwtSecretKey),

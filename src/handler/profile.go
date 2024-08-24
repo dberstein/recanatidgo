@@ -1,13 +1,16 @@
-package main
+package handler
 
 import (
 	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/dberstein/recanatid-go/src/hash"
+	"github.com/dberstein/recanatid-go/src/typ"
 )
 
-func getProfileHandler(db *sql.DB) gin.HandlerFunc {
+func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, exists := c.Get("username")
 		if !exists {
@@ -15,7 +18,7 @@ func getProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		var user RegisterUser
+		var user typ.RegisterUser
 		row := db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
 		if err := row.Scan(&user.Username, &user.Email, &user.Role); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -26,9 +29,9 @@ func getProfileHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func putProfileHandler(db *sql.DB) gin.HandlerFunc {
+func PutProfileHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := &RegisterUser{}
+		user := &typ.RegisterUser{}
 		if err := c.BindJSON(user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -49,7 +52,7 @@ func putProfileHandler(db *sql.DB) gin.HandlerFunc {
 		}
 
 		if user.Password != "" {
-			pwhash, err := hashPassword(user.Password)
+			pwhash, err := hash.HashPassword(user.Password)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
