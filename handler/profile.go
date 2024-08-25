@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/hash"
 	"github.com/dberstein/recanatid-go/model"
 	"github.com/dberstein/recanatid-go/typ"
 )
@@ -43,34 +42,13 @@ func PutProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		if user.Email != "" {
-			_, err := db.Exec(`UPDATE users SET email = ? WHERE username = ?`, &user.Email, username)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
+		user.Username = username.(string)
+		err := model.UpdateProfileUser(db, user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 
-		if user.Password != "" {
-			pwhash, err := hash.HashPassword(user.Password)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-
-			_, err = db.Exec(`UPDATE users SET pwhash = ? WHERE username = ?`, &pwhash, username)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-		}
-
-		if user.Role != "" {
-			_, err := db.Exec(`UPDATE users SET role = ? WHERE username = ?`, &user.Role, username)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-		}
+		c.JSON(http.StatusOK, gin.H{"success": true})
 	}
 }
