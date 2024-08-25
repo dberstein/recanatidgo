@@ -19,8 +19,8 @@ func RateLimitByTokenMiddleware(tb *ginratelimit.TokenBucket) gin.HandlerFunc {
 
 func RateLimitByUserMiddleware(tb *ginratelimit.TokenBucket) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		username, _ := c.Get("username")
-		if username != "" {
+		username, exists := c.Get("username")
+		if exists && username != "" {
 			rate := ginratelimit.RateLimitByUserId(tb, username.(string))
 			rate(c)
 		}

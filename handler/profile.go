@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/dberstein/recanatid-go/hash"
+	"github.com/dberstein/recanatid-go/model"
 	"github.com/dberstein/recanatid-go/typ"
 )
 
@@ -18,9 +19,8 @@ func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		var user typ.RegisterUser
-		row := db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
-		if err := row.Scan(&user.Username, &user.Email, &user.Role); err != nil {
+		user, err := model.GetProfileUser(db, username.(string))
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
