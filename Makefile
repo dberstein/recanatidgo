@@ -1,4 +1,9 @@
+BIN := recanatid
+ENTRY := cmd/recanatid/main.go
+
 run:
-	@go run cmd/recanatid/main.go
+	@go run $(ENTRY)
+
 build:
-	@go build -o recanatid cmd/recanatid/main.go
+	@go build -v -o $(BIN) $(ENTRY) \
+	&& strip $(BIN)
