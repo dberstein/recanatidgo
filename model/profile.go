@@ -3,13 +3,22 @@ package model
 import (
 	"database/sql"
 
-	"github.com/dberstein/recanatid-go/hash"
 	"github.com/dberstein/recanatid-go/typ"
 )
 
-func GetProfileUser(db *sql.DB, username string) (*typ.RegisterUser, error) {
+type Profile struct {
+	db *sql.DB
+}
+
+func NewProfile(db *sql.DB) *Profile {
+	return &Profile{
+		db: db,
+	}
+}
+
+func (p *Profile) Get(username string) (*typ.RegisterUser, error) {
 	var user typ.RegisterUser
-	row := db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
+	row := p.db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
 	if err := row.Scan(&user.Username, &user.Email, &user.Role); err != nil {
 		return nil, err
 	}
@@ -17,15 +26,16 @@ func GetProfileUser(db *sql.DB, username string) (*typ.RegisterUser, error) {
 	return &user, nil
 }
 
-func UpdateProfileUser(db *sql.DB, user *typ.RegisterUser) error {
+func (p *Profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	if user.Email != "" {
-		_, err := db.Exec(`UPDATE users SET email = ? WHERE username = ?`, &user.Email, &user.Username)
+		_, err := p.db.Exec(`UPDATE users SET email = ? WHERE username = ?`, &user.Email, &user.Username)
 		if err != nil {
 			return err
 		}
 	}
 
 	if user.Password != "" {
+		hash := NewHasher()
 		pwhash, err := hash.HashPassword(user.Password)
 		if err != nil {
 			return err

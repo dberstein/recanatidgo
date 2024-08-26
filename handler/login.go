@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/dberstein/recanatid-go/hash"
+	"github.com/dberstein/recanatid-go/model"
 	"github.com/dberstein/recanatid-go/token"
 	"github.com/dberstein/recanatid-go/typ"
 	"github.com/gin-gonic/gin"
@@ -20,19 +20,6 @@ func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker *tok
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-// getPwHash returns pwhash stored in database for username
-func getPwhash(db *sql.DB, username string) (string, error) {
-	var pwhash string
-
-	row := db.QueryRow(`SELECT pwhash FROM users WHERE username=?`, username)
-	err := row.Scan(&pwhash)
-	if err != nil {
-		return pwhash, err
-	}
-
-	return pwhash, nil
-}
-
 func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &typ.UserCredentials{}
@@ -41,14 +28,14 @@ func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		pwhash, err := getPwhash(db, user.Username)
+		hasher := model.NewHasher()
+		pwhash, err := hasher.GetPwhash(db, user.Username)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		valid := hash.CheckPasswordHash(user.Password, pwhash)
-		if valid {
+		if hasher.CheckPasswordHash(user.Password, pwhash) {
 			validLoginResponse(c, user, jwtMaker)
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})

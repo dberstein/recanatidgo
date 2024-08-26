@@ -18,7 +18,8 @@ func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		user, err := model.GetProfileUser(db, username.(string))
+		profile := model.NewProfile(db)
+		user, err := profile.Get(username.(string))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -42,8 +43,9 @@ func PutProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
+		profile := model.NewProfile(db)
 		user.Username = username.(string)
-		err := model.UpdateProfileUser(db, user)
+		err := profile.Update(db, user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

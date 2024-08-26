@@ -7,7 +7,7 @@ type UserCredentials struct {
 
 type RegisterUser struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
 	Role     string `json:"role"`
 	Email    string `json:"email"`
 }

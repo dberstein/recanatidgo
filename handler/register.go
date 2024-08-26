@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/dberstein/recanatid-go/hash"
 	"github.com/dberstein/recanatid-go/model"
 	"github.com/dberstein/recanatid-go/token"
 	"github.com/dberstein/recanatid-go/typ"
@@ -19,18 +18,20 @@ func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		if err := model.ValidateRegisterUser(user); err != nil {
+		register := model.NewRegister(db)
+		if err := register.Validate(user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		pwhash, err := hash.HashPassword(user.Password)
+		hasher := model.NewHasher()
+		pwhash, err := hasher.HashPassword(user.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		err = model.InsertRegisterUser(db, user, pwhash)
+		err = register.Insert(user, pwhash)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
