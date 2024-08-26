@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dberstein/recanatid-go/model"
-	"github.com/dberstein/recanatid-go/token"
+	"github.com/dberstein/recanatid-go/svc/token"
 	"github.com/dberstein/recanatid-go/typ"
 	"github.com/gin-gonic/gin"
 )

@@ -12,10 +12,10 @@ import (
 	"github.com/joho/godotenv"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
-	"github.com/dberstein/recanatid-go/db"
-	"github.com/dberstein/recanatid-go/owm"
 	"github.com/dberstein/recanatid-go/svc"
-	"github.com/dberstein/recanatid-go/token"
+	"github.com/dberstein/recanatid-go/svc/db"
+	"github.com/dberstein/recanatid-go/svc/owm"
+	"github.com/dberstein/recanatid-go/svc/token"
 
 	_ "github.com/mattn/go-sqlite3"
 )

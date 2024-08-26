@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/owm"
+	"github.com/dberstein/recanatid-go/svc/owm"
 )
 
 func getCurrentPage(c *gin.Context) (int, error) {

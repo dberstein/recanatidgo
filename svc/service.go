@@ -8,8 +8,8 @@ import (
 
 	"github.com/dberstein/recanatid-go/handler"
 	mw "github.com/dberstein/recanatid-go/middleware"
-	"github.com/dberstein/recanatid-go/owm"
-	"github.com/dberstein/recanatid-go/token"
+	"github.com/dberstein/recanatid-go/svc/owm"
+	"github.com/dberstein/recanatid-go/svc/token"
 )
 
 type Service struct {
