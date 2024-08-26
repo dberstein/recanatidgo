@@ -6,17 +6,17 @@ import (
 	"github.com/dberstein/recanatid-go/typ"
 )
 
-type Profile struct {
+type profile struct {
 	db *sql.DB
 }
 
-func NewProfile(db *sql.DB) *Profile {
-	return &Profile{
+func NewProfile(db *sql.DB) *profile {
+	return &profile{
 		db: db,
 	}
 }
 
-func (p *Profile) Get(username string) (*typ.RegisterUser, error) {
+func (p *profile) Get(username string) (*typ.RegisterUser, error) {
 	var user typ.RegisterUser
 	row := p.db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
 	if err := row.Scan(&user.Username, &user.Email, &user.Role); err != nil {
@@ -26,7 +26,7 @@ func (p *Profile) Get(username string) (*typ.RegisterUser, error) {
 	return &user, nil
 }
 
-func (p *Profile) Update(db *sql.DB, user *typ.RegisterUser) error {
+func (p *profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	if user.Email != "" {
 		_, err := p.db.Exec(`UPDATE users SET email = ? WHERE username = ?`, &user.Email, &user.Username)
 		if err != nil {

@@ -7,17 +7,17 @@ import (
 	"github.com/dberstein/recanatid-go/typ"
 )
 
-type Register struct {
+type register struct {
 	db *sql.DB
 }
 
-func NewRegister(db *sql.DB) *Register {
-	return &Register{
+func NewRegister(db *sql.DB) *register {
+	return &register{
 		db: db,
 	}
 }
 
-func (r *Register) Validate(user *typ.RegisterUser) error {
+func (r *register) Validate(user *typ.RegisterUser) error {
 	if user.Username == "" {
 		return errors.New("missing: username")
 	}
@@ -34,7 +34,7 @@ func (r *Register) Validate(user *typ.RegisterUser) error {
 	return nil
 }
 
-func (r *Register) Insert(user *typ.RegisterUser, pwhash string) error {
+func (r *register) Insert(user *typ.RegisterUser, pwhash string) error {
 	_, err := r.db.Exec(
 		"INSERT INTO users (username, pwhash, email, role) VALUES (?, ?, ?, ?)",
 		&user.Username, &pwhash, &user.Email, &user.Role,
