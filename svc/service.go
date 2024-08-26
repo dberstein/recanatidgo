@@ -7,7 +7,7 @@ import (
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
 	"github.com/dberstein/recanatid-go/handler"
-	"github.com/dberstein/recanatid-go/mw"
+	mw "github.com/dberstein/recanatid-go/middleware"
 	"github.com/dberstein/recanatid-go/owm"
 	"github.com/dberstein/recanatid-go/token"
 )
