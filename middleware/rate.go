@@ -1,4 +1,4 @@
-package mw
+package middleware
 
 import (
 	"github.com/dberstein/recanatid-go/svc/token"
