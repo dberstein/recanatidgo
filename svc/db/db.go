@@ -14,7 +14,7 @@ func ensureSchema(db *sql.DB) error {
 	return nil
 }
 
-func GetDb(dsn string) *sql.DB {
+func NewDb(dsn string) *sql.DB {
 	db, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		log.Fatal(err)

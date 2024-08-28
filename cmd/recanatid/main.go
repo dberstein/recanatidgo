@@ -58,7 +58,7 @@ func main() {
 
 	dsn = *dsnPtr
 
-	dbcon := db.GetDb(dsn)
+	dbcon := db.NewDb(dsn)
 	defer dbcon.Close()
 
 	rate, ttl, err := parseRateString(*ratePtr)
