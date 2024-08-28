@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/dberstein/recanatid-go/model"
 	"github.com/dberstein/recanatid-go/svc/owm"
 )
 
@@ -21,7 +23,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 	return p, nil
 }
 
-func DataHandler(o owm.Owmer) gin.HandlerFunc {
+func DataHandler(db *sql.DB, o owm.Owmer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
 
@@ -30,10 +32,15 @@ func DataHandler(o owm.Owmer) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		ps := 10
-		skip := (p - 1) * ps
 
-		data, err := o.Query(c.Query("location"))
+		owmData, err := o.Query(c.Query("location"))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		data := model.NewData(db, 3)
+		persons, err := data.ListUsers(p)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -41,9 +48,9 @@ func DataHandler(o owm.Owmer) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": fmt.Sprintf("Hello, %v! This is a protected route.", username),
+			"owm":     owmData,
 			"page":    p,
-			"limit":   fmt.Sprintf("%d,%d", skip, ps+1),
-			"owm":     data,
+			"persons": persons,
 		})
 	}
 }
