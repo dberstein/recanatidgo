@@ -6,19 +6,19 @@ import (
 	"github.com/dberstein/recanatid-go/typ"
 )
 
-type Data struct {
+type data struct {
 	db       *sql.DB
 	pageSize int
 }
 
-func NewData(db *sql.DB, pageSize int) *Data {
-	return &Data{
+func NewData(db *sql.DB, pageSize int) *data {
+	return &data{
 		db:       db,
 		pageSize: pageSize,
 	}
 }
 
-func (d *Data) ListUsers(page int) ([]typ.RegisterUser, error) {
+func (d *data) ListUsers(page int) ([]typ.RegisterUser, error) {
 	rows, err := d.db.Query("SELECT username, email, role FROM users LIMIT ?,?", (page-1)*d.pageSize, d.pageSize)
 	if err != nil {
 		return nil, err
