@@ -2,6 +2,7 @@ package svc
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
@@ -39,5 +40,6 @@ func (s *Service) Serve(addr string) error {
 	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.PutProfileHandler(s.db))
 	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.DataHandler(s.db, s.owmer))
 
+	log.Println("Serving:", addr)
 	return r.Run(addr)
 }
