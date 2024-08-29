@@ -13,48 +13,48 @@ import (
 	"github.com/dberstein/recanatid-go/svc/token"
 )
 
-type Option func(*Service)
+type ApiServiceOption func(*ApiService)
 
-type Service struct {
+type ApiService struct {
 	db       *sql.DB
 	tb       *ginratelimit.TokenBucket
 	owmer    owm.Owmer
 	jwtMaker *token.JWTMaker
 }
 
-func WithDB(db *sql.DB) Option {
-	return func(s *Service) {
+func WithDB(db *sql.DB) ApiServiceOption {
+	return func(s *ApiService) {
 		s.db = db
 	}
 }
 
-func WithTokenBucket(tb *ginratelimit.TokenBucket) Option {
-	return func(s *Service) {
+func WithTokenBucket(tb *ginratelimit.TokenBucket) ApiServiceOption {
+	return func(s *ApiService) {
 		s.tb = tb
 	}
 }
 
-func WithOwmer(o owm.Owmer) Option {
-	return func(s *Service) {
+func WithOwmer(o owm.Owmer) ApiServiceOption {
+	return func(s *ApiService) {
 		s.owmer = o
 	}
 }
 
-func WithJMWMaker(jwtMaker *token.JWTMaker) Option {
-	return func(s *Service) {
+func WithJMWMaker(jwtMaker *token.JWTMaker) ApiServiceOption {
+	return func(s *ApiService) {
 		s.jwtMaker = jwtMaker
 	}
 }
 
-func NewService(option ...Option) *Service {
-	s := &Service{}
+func NewApiService(option ...ApiServiceOption) *ApiService {
+	s := &ApiService{}
 	for _, o := range option {
 		o(s)
 	}
 	return s
 }
 
-func (s *Service) Serve(addr string) error {
+func (s *ApiService) Serve(addr string) error {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
