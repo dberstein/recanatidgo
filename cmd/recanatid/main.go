@@ -67,10 +67,10 @@ func main() {
 	}
 
 	s := svc.NewService(
-		dbcon,
-		ginratelimit.NewTokenBucket(rate, ttl),
-		owm.NewOwm(*owmPtr),
-		token.NewJWTMaker(jwtSecretKey),
+		svc.WithDB(dbcon),
+		svc.WithTokenBucket(ginratelimit.NewTokenBucket(rate, ttl)),
+		svc.WithOwmer(owm.NewOwm(*owmPtr)),
+		svc.WithJMWMaker(token.NewJWTMaker(jwtSecretKey)),
 	)
 
 	if err := s.Serve(*addrPtr); err != nil {
