@@ -3,6 +3,8 @@ package svc
 import (
 	"database/sql"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
@@ -58,7 +60,13 @@ func (s *ApiServer) Serve(addr string) error {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
-
+	server := &http.Server{
+		Addr:           addr,
+		Handler:        r,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   15 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
 	r.POST("/register", handler.RegisterHandler(s.db, s.jwtMaker))
 	r.POST("/login", handler.LoginHandler(s.db, s.jwtMaker))
 	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.GetProfileHandler(s.db))
@@ -66,5 +74,5 @@ func (s *ApiServer) Serve(addr string) error {
 	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.DataHandler(s.db, s.owmer))
 
 	log.Println("Serving:", addr)
-	return r.Run(addr)
+	return server.ListenAndServe()
 }
