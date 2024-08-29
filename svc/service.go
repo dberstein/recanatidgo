@@ -29,6 +29,8 @@ func NewService(db *sql.DB, tb *ginratelimit.TokenBucket, owmer owm.Owmer, jwtMa
 }
 
 func (s *Service) Serve(addr string) error {
+	gin.SetMode(gin.ReleaseMode)
+
 	r := gin.Default()
 
 	r.POST("/register", handler.RegisterHandler(s.db, s.jwtMaker))
