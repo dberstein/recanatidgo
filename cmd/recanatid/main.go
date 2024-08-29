@@ -66,7 +66,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := svc.NewApiService(
+	s := svc.NewApiServer(
 		svc.WithDB(dbcon),
 		svc.WithTokenBucket(ginratelimit.NewTokenBucket(rate, ttl)),
 		svc.WithOwmer(owm.NewOwm(*owmPtr)),
