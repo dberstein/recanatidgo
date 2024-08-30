@@ -1,10 +1,10 @@
-package handler
+package handlers
 
 import (
 	"database/sql"
 	"net/http"
 
-	"github.com/dberstein/recanatid-go/model"
+	"github.com/dberstein/recanatid-go/models"
 	"github.com/dberstein/recanatid-go/svc/token"
 	"github.com/dberstein/recanatid-go/typ"
 	"github.com/gin-gonic/gin"
@@ -28,7 +28,7 @@ func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		hasher := model.NewHasher()
+		hasher := models.NewHasher()
 		pwhash, err := hasher.GetPwhash(db, user.Username)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

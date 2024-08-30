@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"database/sql"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/model"
+	"github.com/dberstein/recanatid-go/models"
 	"github.com/dberstein/recanatid-go/svc/owm"
 )
 
@@ -39,7 +39,7 @@ func DataHandler(db *sql.DB, o owm.Owmer) gin.HandlerFunc {
 			return
 		}
 
-		data := model.NewData(db, 3)
+		data := models.NewData(db, 3)
 		persons, err := data.ListUsers(p)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

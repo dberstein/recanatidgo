@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 
-	"github.com/dberstein/recanatid-go/handler"
-	mw "github.com/dberstein/recanatid-go/middleware"
+	"github.com/dberstein/recanatid-go/handlers"
+	mw "github.com/dberstein/recanatid-go/middlewares"
 	"github.com/dberstein/recanatid-go/svc/owm"
 	"github.com/dberstein/recanatid-go/svc/token"
 )
@@ -67,11 +67,11 @@ func (s *ApiServer) Serve(addr string) error {
 		WriteTimeout:   15 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	r.POST("/register", handler.RegisterHandler(s.db, s.jwtMaker))
-	r.POST("/login", handler.LoginHandler(s.db, s.jwtMaker))
-	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.GetProfileHandler(s.db))
-	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.PutProfileHandler(s.db))
-	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handler.DataHandler(s.db, s.owmer))
+	r.POST("/register", handlers.RegisterHandler(s.db, s.jwtMaker))
+	r.POST("/login", handlers.LoginHandler(s.db, s.jwtMaker))
+	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.GetProfileHandler(s.db))
+	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(s.db))
+	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.DataHandler(s.db, s.owmer))
 
 	log.Println("Serving:", addr)
 	return server.ListenAndServe()

@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/dberstein/recanatid-go/model"
+	"github.com/dberstein/recanatid-go/models"
 	"github.com/dberstein/recanatid-go/typ"
 )
 
@@ -18,7 +18,7 @@ func GetProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		profile := model.NewProfile(db)
+		profile := models.NewProfile(db)
 		user, err := profile.Get(username.(string))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -43,7 +43,7 @@ func PutProfileHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		profile := model.NewProfile(db)
+		profile := models.NewProfile(db)
 		user.Username = username.(string)
 		err := profile.Update(db, user)
 		if err != nil {

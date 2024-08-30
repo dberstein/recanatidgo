@@ -1,10 +1,10 @@
-package handler
+package handlers
 
 import (
 	"database/sql"
 	"net/http"
 
-	"github.com/dberstein/recanatid-go/model"
+	"github.com/dberstein/recanatid-go/models"
 	"github.com/dberstein/recanatid-go/svc/token"
 	"github.com/dberstein/recanatid-go/typ"
 	"github.com/gin-gonic/gin"
@@ -18,13 +18,13 @@ func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		register := model.NewRegister(db)
+		register := models.NewRegister(db)
 		if err := register.Validate(user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		hasher := model.NewHasher()
+		hasher := models.NewHasher()
 		pwhash, err := hasher.HashPassword(user.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
