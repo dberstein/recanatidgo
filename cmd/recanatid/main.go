@@ -15,6 +15,7 @@ import (
 	"github.com/dberstein/recanatid-go/svc"
 	"github.com/dberstein/recanatid-go/svc/db"
 	"github.com/dberstein/recanatid-go/svc/owm"
+	"github.com/dberstein/recanatid-go/svc/store"
 	"github.com/dberstein/recanatid-go/svc/token"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -67,7 +68,7 @@ func main() {
 	}
 
 	s := svc.NewApiServer(
-		svc.WithDB(dbcon),
+		svc.WithStore(store.NewStore(dbcon)),
 		svc.WithTokenBucket(ginratelimit.NewTokenBucket(rate, ttl)),
 		svc.WithOwmer(owm.NewOwm(*owmPtr)),
 		svc.WithJMWMaker(token.NewJWTMaker(jwtSecretKey)),

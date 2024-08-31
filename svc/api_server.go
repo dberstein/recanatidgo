@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"time"
@@ -12,21 +11,22 @@ import (
 	"github.com/dberstein/recanatid-go/handlers"
 	mw "github.com/dberstein/recanatid-go/middlewares"
 	"github.com/dberstein/recanatid-go/svc/owm"
+	"github.com/dberstein/recanatid-go/svc/store"
 	"github.com/dberstein/recanatid-go/svc/token"
 )
 
 type ApiServerOption func(*ApiServer)
 
 type ApiServer struct {
-	db       *sql.DB
+	store    *store.Store
 	tb       *ginratelimit.TokenBucket
 	owmer    owm.Owmer
 	jwtMaker *token.JWTMaker
 }
 
-func WithDB(db *sql.DB) ApiServerOption {
+func WithStore(store *store.Store) ApiServerOption {
 	return func(s *ApiServer) {
-		s.db = db
+		s.store = store
 	}
 }
 
@@ -67,11 +67,12 @@ func (s *ApiServer) Serve(addr string) error {
 		WriteTimeout:   15 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	r.POST("/register", handlers.RegisterHandler(s.db, s.jwtMaker))
-	r.POST("/login", handlers.LoginHandler(s.db, s.jwtMaker))
-	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.GetProfileHandler(s.db))
-	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(s.db))
-	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.DataHandler(s.db, s.owmer))
+	db := s.store.GetDB()
+	r.POST("/register", handlers.RegisterHandler(db, s.jwtMaker))
+	r.POST("/login", handlers.LoginHandler(db, s.jwtMaker))
+	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.GetProfileHandler(db))
+	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(db))
+	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.DataHandler(db, s.owmer))
 
 	log.Println("Serving:", addr)
 	return server.ListenAndServe()
