@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	ginratelimit "github.com/ljahier/gin-ratelimit"
 
 	"github.com/dberstein/recanatid-go/svc"
 	"github.com/dberstein/recanatid-go/svc/db"
 	"github.com/dberstein/recanatid-go/svc/owm"
+	"github.com/dberstein/recanatid-go/svc/rate"
 	"github.com/dberstein/recanatid-go/svc/store"
 	"github.com/dberstein/recanatid-go/svc/token"
 
@@ -62,14 +62,14 @@ func main() {
 	dbcon := db.NewDb(dsn)
 	defer dbcon.Close()
 
-	rate, ttl, err := parseRateString(*ratePtr)
+	rl, err := rate.NewRateLimiter(*ratePtr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	s := svc.NewApiServer(
 		svc.WithStore(store.NewStore(dbcon)),
-		svc.WithTokenBucket(ginratelimit.NewTokenBucket(rate, ttl)),
+		svc.WithTokenBucket(rl.GetTokenBucket()),
 		svc.WithOwmer(owm.NewOwm(*owmPtr)),
 		svc.WithJMWMaker(token.NewJWTMaker(jwtSecretKey)),
 	)
