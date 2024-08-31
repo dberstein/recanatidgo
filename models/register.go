@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/dberstein/recanatid-go/typ"
 )
@@ -24,7 +25,7 @@ func (r *register) Validate(user *typ.RegisterUser) error {
 	if user.Password == "" {
 		return errors.New("missing: password")
 	}
-	if user.Email == "" {
+	if user.Email == "" || strings.IndexRune(user.Email, '@') < 1 {
 		return errors.New("missing: email")
 	}
 	// if user.Role == "" {
