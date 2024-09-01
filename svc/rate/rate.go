@@ -2,6 +2,7 @@ package rate
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +32,7 @@ func NewRateLimiter(rateSpec string) (*rateLimiter, error) {
 		return nil, errors.New("rate's TTL has to be greater than zero")
 	}
 
+	log.Printf("Rate limiter: %d per %s", rate, ttl)
 	return &rateLimiter{
 		tb: ginratelimit.NewTokenBucket(rate, ttl),
 	}, nil
