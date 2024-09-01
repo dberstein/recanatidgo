@@ -1,13 +1,9 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"log"
 	"os"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/joho/godotenv"
 
@@ -23,26 +19,6 @@ import (
 
 var dsn string
 var jwtSecretKey = []byte("your-secret-key") // todo: parametrize JWT secret
-
-func parseRateString(s string) (int, time.Duration, error) {
-	rateTmp := strings.Split(s, "/")
-	rate, err := strconv.Atoi(rateTmp[0])
-	if err != nil {
-		return 0, 0, err
-	}
-	if rate <= 0 {
-		return rate, 0, errors.New("rate has to be greater than zero")
-	}
-
-	ttl, err := time.ParseDuration(rateTmp[1])
-	if err != nil {
-		return rate, 0, err
-	}
-	if ttl <= 0 {
-		return rate, ttl, errors.New("rate's TTL has to be greater than zero")
-	}
-	return rate, ttl, nil
-}
 
 func main() {
 	err := godotenv.Load()
