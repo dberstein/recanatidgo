@@ -13,8 +13,6 @@ import (
 	"github.com/dberstein/recanatid-go/svc/rate"
 	"github.com/dberstein/recanatid-go/svc/store"
 	"github.com/dberstein/recanatid-go/svc/token"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var dsn string

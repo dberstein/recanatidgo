@@ -68,6 +68,7 @@ func (s *ApiServer) Serve(addr string) error {
 		MaxHeaderBytes: 1 << 20,
 	}
 	db := s.store.GetDB()
+
 	r.POST("/register", handlers.RegisterHandler(db, s.jwtMaker))
 	r.POST("/login", handlers.LoginHandler(db, s.jwtMaker))
 	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.GetProfileHandler(db))
