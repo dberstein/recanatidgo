@@ -47,7 +47,7 @@ func main() {
 		svc.WithStore(store.NewStore(dbcon)),
 		svc.WithTokenBucket(rl.GetTokenBucket()),
 		svc.WithOwmer(owm.NewOwm(*owmPtr)),
-		svc.WithJMWMaker(token.NewJWTMaker(jwtSecretKey)),
+		svc.WithJWTMaker(token.NewJWTMaker(jwtSecretKey)),
 	)
 
 	if err := s.Serve(*addrPtr); err != nil {

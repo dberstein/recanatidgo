@@ -42,7 +42,7 @@ func WithOwmer(o owm.Owmer) ApiServerOption {
 	}
 }
 
-func WithJMWMaker(jwtMaker *token.JWTMaker) ApiServerOption {
+func WithJWTMaker(jwtMaker *token.JWTMaker) ApiServerOption {
 	return func(s *ApiServer) {
 		s.jwtMaker = jwtMaker
 	}
