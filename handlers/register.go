@@ -18,8 +18,8 @@ func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		register := models.NewRegister(db)
-		if err := register.Validate(user); err != nil {
+		profile := models.NewProfile(db)
+		if err := profile.Validate(user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -31,7 +31,7 @@ func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		err = register.Insert(user, pwhash)
+		err = profile.Insert(user, pwhash)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"strings"
 
 	"github.com/dberstein/recanatid-go/typ"
 )
@@ -55,4 +57,30 @@ func (p *profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	}
 
 	return nil
+}
+
+func (p *profile) Validate(user *typ.RegisterUser) error {
+	if user.Username == "" {
+		return errors.New("missing: username")
+	}
+	if user.Password == "" {
+		return errors.New("missing: password")
+	}
+	if user.Email == "" || strings.IndexRune(user.Email, '@') < 1 {
+		return errors.New("missing: email")
+	}
+	// if user.Role == "" {
+	// 	return errors.New("missing: role")
+	// }
+
+	return nil
+}
+
+func (p *profile) Insert(user *typ.RegisterUser, pwhash string) error {
+	_, err := p.db.Exec(
+		"INSERT INTO users (username, pwhash, email, role) VALUES (?, ?, ?, ?)",
+		&user.Username, &pwhash, &user.Email, &user.Role,
+	)
+
+	return err
 }
