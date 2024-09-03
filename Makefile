@@ -1,9 +1,17 @@
 BIN := recanatid
 ENTRY := cmd/recanatid/main.go
+COVERFILE := cover.out
 
 run:
 	@go run $(ENTRY)
 
-build:
+test:
+	@go test ./...
+
+build: test
 	@go build -v -o $(BIN) $(ENTRY) \
 	&& strip $(BIN)
+
+coverage:
+	@go test -coverprofile $(COVERFILE) ./... && \
+	go tool cover -html=$(COVERFILE)

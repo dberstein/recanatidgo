@@ -56,17 +56,10 @@ func NewApiServer(option ...ApiServerOption) *ApiServer {
 	return s
 }
 
-func (s *ApiServer) Serve(addr string) error {
+func (s *ApiServer) SetupRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
-	server := &http.Server{
-		Addr:           addr,
-		Handler:        r,
-		ReadTimeout:    30 * time.Second,
-		WriteTimeout:   15 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
 	db := s.store.GetDB()
 
 	r.POST("/register", handlers.RegisterHandler(db, s.jwtMaker))
@@ -75,6 +68,19 @@ func (s *ApiServer) Serve(addr string) error {
 	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(db))
 	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), mw.RoleMiddleware([]string{"admin"}), handlers.DataHandler(db, s.owmer))
 
+	return r
+}
+
+func (s *ApiServer) Serve(addr string) error {
+	r := s.SetupRouter()
+	srv := &http.Server{
+		Addr:           addr,
+		Handler:        r,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   15 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
 	log.Println("Serving:", addr)
-	return server.ListenAndServe()
+	return srv.ListenAndServe()
 }
