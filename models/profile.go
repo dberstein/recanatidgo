@@ -59,6 +59,15 @@ func (p *profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	return nil
 }
 
+func (p *profile) Insert(user *typ.RegisterUser, pwhash string) error {
+	_, err := p.db.Exec(
+		"INSERT INTO users (username, pwhash, email, role) VALUES (?, ?, ?, ?)",
+		&user.Username, &pwhash, &user.Email, &user.Role,
+	)
+
+	return err
+}
+
 func (p *profile) Validate(user *typ.RegisterUser) error {
 	if user.Username == "" {
 		return errors.New("missing: username")
@@ -74,13 +83,4 @@ func (p *profile) Validate(user *typ.RegisterUser) error {
 	// }
 
 	return nil
-}
-
-func (p *profile) Insert(user *typ.RegisterUser, pwhash string) error {
-	_, err := p.db.Exec(
-		"INSERT INTO users (username, pwhash, email, role) VALUES (?, ?, ?, ?)",
-		&user.Username, &pwhash, &user.Email, &user.Role,
-	)
-
-	return err
 }
