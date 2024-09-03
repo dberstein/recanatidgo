@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func isRoleAllowed(hasRole, requiredRole string) bool {
-	return requiredRole == "" || hasRole == requiredRole
-}
-
-func AuthMiddleware(jwtMaker *token.JWTMaker, role string) gin.HandlerFunc {
+func AuthMiddleware(jwtMaker *token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := token.GetBearerToken(c.GetHeader("Authorization"))
 		if tokenString == "" {
@@ -32,10 +27,6 @@ func AuthMiddleware(jwtMaker *token.JWTMaker, role string) gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			if !isRoleAllowed(claims["role"].(string), role) {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Required token claims role: '%s' (has '%s')", role, claims["role"])})
-				c.Abort()
-			}
 			c.Set("username", claims["username"])
 			c.Set("role", claims["role"])
 			c.Next()

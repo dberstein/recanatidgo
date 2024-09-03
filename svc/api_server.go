@@ -71,9 +71,9 @@ func (s *ApiServer) Serve(addr string) error {
 
 	r.POST("/register", handlers.RegisterHandler(db, s.jwtMaker))
 	r.POST("/login", handlers.LoginHandler(db, s.jwtMaker))
-	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker, ""), handlers.GetProfileHandler(db))
-	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker, ""), handlers.PutProfileHandler(db))
-	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker, "admin"), handlers.DataHandler(db, s.owmer))
+	r.GET("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.GetProfileHandler(db))
+	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(db))
+	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), mw.RoleMiddleware([]string{"admin"}), handlers.DataHandler(db, s.owmer))
 
 	log.Println("Serving:", addr)
 	return server.ListenAndServe()
