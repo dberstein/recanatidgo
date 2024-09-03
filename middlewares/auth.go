@@ -11,8 +11,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func isRoleNotAllowed(hasRole, requiredRole string) bool {
-	return !(requiredRole == "" || hasRole == requiredRole)
+func isRoleAllowed(hasRole, requiredRole string) bool {
+	return requiredRole == "" || hasRole == requiredRole
 }
 
 func AuthMiddleware(jwtMaker *token.JWTMaker, role string) gin.HandlerFunc {
@@ -32,7 +32,7 @@ func AuthMiddleware(jwtMaker *token.JWTMaker, role string) gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			if isRoleNotAllowed(claims["role"].(string), role) {
+			if !isRoleAllowed(claims["role"].(string), role) {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("Required token claims role: '%s' (has '%s')", role, claims["role"])})
 				c.Abort()
 			}
