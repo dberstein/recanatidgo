@@ -37,6 +37,6 @@ func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 			return
 		}
 
-		validLoginResponse(c, &typ.UserCredentials{Username: user.Username}, jwtMaker)
+		validLoginResponse(c, &typ.UserCredentials{Username: user.Username, Role: user.Role}, jwtMaker)
 	}
 }

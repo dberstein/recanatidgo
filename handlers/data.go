@@ -26,6 +26,7 @@ func getCurrentPage(c *gin.Context) (int, error) {
 func DataHandler(db *sql.DB, o owm.Owmer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		username, _ := c.Get("username")
+		role, _ := c.Get("role")
 
 		p, err := getCurrentPage(c)
 		if err != nil {
@@ -48,6 +49,7 @@ func DataHandler(db *sql.DB, o owm.Owmer) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": fmt.Sprintf("Hello, %v! This is a protected route.", username),
+			"role":    role,
 			"owm":     owmData,
 			"page":    p,
 			"persons": persons,

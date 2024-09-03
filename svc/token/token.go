@@ -24,9 +24,10 @@ func NewJWTMaker(secret []byte) *JWTMaker {
 	return &JWTMaker{secret: secret}
 }
 
-func (j *JWTMaker) CreateToken(username string) (string, error) {
+func (j *JWTMaker) CreateToken(username string, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
+		"role":     role,
 		"exp":      time.Now().Add(time.Hour * 24 * 14).Unix(),
 	})
 	return token.SignedString(j.secret)

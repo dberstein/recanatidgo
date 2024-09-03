@@ -12,7 +12,7 @@ import (
 
 // validLoginResponse writes access token or error
 func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker *token.JWTMaker) {
-	token, err := jwtMaker.CreateToken(user.Username)
+	token, err := jwtMaker.CreateToken(user.Username, user.Role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
 		return
@@ -29,12 +29,13 @@ func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
 		}
 
 		hasher := models.NewHasher()
-		pwhash, err := hasher.GetPwhash(db, user.Username)
+		pwhash, role, err := hasher.GetPwhashRole(db, user.Username)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
+		user.Role = role
 		if hasher.CheckPasswordHash(user.Password, pwhash) {
 			validLoginResponse(c, user, jwtMaker)
 		} else {

@@ -22,14 +22,15 @@ func (h *hasher) CheckPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func (h *hasher) GetPwhash(db *sql.DB, username string) (string, error) {
+func (h *hasher) GetPwhashRole(db *sql.DB, username string) (string, string, error) {
 	var pwhash string
+	var role string
 
-	row := db.QueryRow(`SELECT pwhash FROM users WHERE username=?`, username)
-	err := row.Scan(&pwhash)
+	row := db.QueryRow(`SELECT pwhash, role FROM users WHERE username=?`, username)
+	err := row.Scan(&pwhash, &role)
 	if err != nil {
-		return pwhash, err
+		return pwhash, role, err
 	}
 
-	return pwhash, nil
+	return pwhash, role, nil
 }
