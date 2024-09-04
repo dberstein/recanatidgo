@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -157,7 +158,7 @@ func TestRegister(t *testing.T) {
 
 	// // test tokens
 	// for name, token := range map[string]string{"register": tokenRegister.(string), "login": tokenLogin.(string)} {
-	// 	assert.True(t, validToken(t, token), fmt.Sprintf("token invalid: %q: %s", name, token))
+	// 	assert.True(validToken(t, token), fmt.Sprintf("token invalid: %q: %s", name, token))
 	// }
 }
 
@@ -167,16 +168,12 @@ func validToken(t *testing.T, token string) bool {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/admin/data", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
-	t.Log("Authorization", "Bearer "+token)
+	t.Log("Authorization", fmt.Sprintf("Bearer %s", token))
 	router.ServeHTTP(w, req)
 
 	t.Log("Code", w.Code)
 
 	return w.Code > 100 && w.Code < 400
-	// assert.Equal(t, 401, w.Code)
-	// assert.Equal(t, `{"error":"Invalid token"}`, w.Body.String())
-
-	// return false
 }
 
 func TestLogin(t *testing.T) {
