@@ -62,6 +62,7 @@ func TestRegisterMissingAll(t *testing.T) {
 }
 
 func TestRegisterMissingUsername(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -74,11 +75,12 @@ func TestRegisterMissingUsername(t *testing.T) {
 	userJson, _ := json.Marshal(exampleUser)
 	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, req)
-	assert.Equal(t, 400, w.Code)
-	assert.Equal(t, `{"error":"missing: username"}`, w.Body.String())
+	assert.Equal(400, w.Code)
+	assert.Equal(`{"error":"missing: username"}`, w.Body.String())
 }
 
 func TestRegisterMissingPassword(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -90,11 +92,12 @@ func TestRegisterMissingPassword(t *testing.T) {
 	userJson, _ := json.Marshal(exampleUser)
 	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, req)
-	assert.Equal(t, 400, w.Code)
-	assert.Equal(t, `{"error":"missing: password"}`, w.Body.String())
+	assert.Equal(400, w.Code)
+	assert.Equal(`{"error":"missing: password"}`, w.Body.String())
 }
 
 func TestRegisterMissingEmail(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -106,15 +109,12 @@ func TestRegisterMissingEmail(t *testing.T) {
 	userJson, _ := json.Marshal(exampleUser)
 	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, req)
-	assert.Equal(t, 400, w.Code)
-	assert.Equal(t, `{"error":"missing: password"}`, w.Body.String())
-}
-
-func registerUser() {
-
+	assert.Equal(400, w.Code)
+	assert.Equal(`{"error":"missing: password"}`, w.Body.String())
 }
 
 func TestRegister(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -123,11 +123,12 @@ func TestRegister(t *testing.T) {
 		Username: username,
 		Password: "secret",
 		Email:    "testing@test.com",
+		Role:     "admin",
 	}
 	userJson, _ := json.Marshal(exampleUser)
 	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, req)
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(200, w.Code)
 
 	var registerResponse any
 	err := json.Unmarshal(w.Body.Bytes(), &registerResponse)
@@ -141,7 +142,8 @@ func TestRegister(t *testing.T) {
 	w = httptest.NewRecorder()
 	reqLogin, _ := http.NewRequest("POST", "/login", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, reqLogin)
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(200, w.Code)
+
 	var loginResponse any
 	err = json.Unmarshal(w.Body.Bytes(), &loginResponse)
 	if err != nil {
@@ -149,13 +151,36 @@ func TestRegister(t *testing.T) {
 	}
 	// token from login
 	tokenLogin := loginResponse.(map[string]any)["token"]
-	assert.NotEqual(t, tokenLogin, "")
-
+	assert.NotEqual(tokenLogin, "")
 	// do we have a different token?
-	assert.True(t, tokenRegister != tokenLogin)
+	assert.True(tokenRegister != tokenLogin)
+
+	// // test tokens
+	// for name, token := range map[string]string{"register": tokenRegister.(string), "login": tokenLogin.(string)} {
+	// 	assert.True(t, validToken(t, token), fmt.Sprintf("token invalid: %q: %s", name, token))
+	// }
+}
+
+func validToken(t *testing.T, token string) bool {
+	router := service.SetupRouter()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/admin/data", nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	t.Log("Authorization", "Bearer "+token)
+	router.ServeHTTP(w, req)
+
+	t.Log("Code", w.Code)
+
+	return w.Code > 100 && w.Code < 400
+	// assert.Equal(t, 401, w.Code)
+	// assert.Equal(t, `{"error":"Invalid token"}`, w.Body.String())
+
+	// return false
 }
 
 func TestLogin(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -163,11 +188,12 @@ func TestLogin(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, 404, w.Code)
-	assert.Equal(t, `404 page not found`, w.Body.String())
+	assert.Equal(404, w.Code)
+	assert.Equal(`404 page not found`, w.Body.String())
 }
 
 func TestGetProfileRoute(t *testing.T) {
+	assert := assert.New(t)
 	router := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -175,11 +201,11 @@ func TestGetProfileRoute(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, 401, w.Code)
-	assert.Equal(t, `{"error":"Authorization header is required"}`, w.Body.String())
+	assert.Equal(401, w.Code)
+	assert.Equal(`{"error":"Authorization header is required"}`, w.Body.String())
 
 	req, _ = http.NewRequest("GET", "/profile", nil)
 	req.Header.Add("Authorizationx", "Bearer 123")
-	assert.Equal(t, 401, w.Code)
-	assert.Equal(t, `{"error":"Authorization header is required"}`, w.Body.String())
+	assert.Equal(401, w.Code)
+	assert.Equal(`{"error":"Authorization header is required"}`, w.Body.String())
 }

@@ -6,7 +6,7 @@ run:
 	@go run $(ENTRY)
 
 test:
-	@go test ./...
+	@go test -v ./...
 
 build: test
 	@go build -v -o $(BIN) $(ENTRY) \
