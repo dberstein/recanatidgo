@@ -10,6 +10,10 @@ import (
 	ginratelimit "github.com/ljahier/gin-ratelimit"
 )
 
+type RateLimiter interface {
+	GetTokenBucket() *ginratelimit.TokenBucket
+}
+
 type rateLimiter struct {
 	tb *ginratelimit.TokenBucket
 }
