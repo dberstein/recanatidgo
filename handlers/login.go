@@ -11,7 +11,7 @@ import (
 )
 
 // validLoginResponse writes access token or error
-func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker *token.JWTMaker) {
+func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker token.JWTMaker) {
 	token, err := jwtMaker.CreateToken(user.Username, user.Role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create token"})
@@ -20,7 +20,7 @@ func validLoginResponse(c *gin.Context, user *typ.UserCredentials, jwtMaker *tok
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func LoginHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
+func LoginHandler(db *sql.DB, jwtMaker token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &typ.UserCredentials{}
 		if err := c.BindJSON(user); err != nil {

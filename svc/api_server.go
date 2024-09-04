@@ -21,7 +21,7 @@ type ApiServer struct {
 	store    store.Storage
 	tb       *ginratelimit.TokenBucket
 	owmer    owm.Owmer
-	jwtMaker *token.JWTMaker
+	jwtMaker token.JWTMaker
 }
 
 func WithStore(store store.Storage) ApiServerOption {
@@ -42,7 +42,7 @@ func WithOwmer(o owm.Owmer) ApiServerOption {
 	}
 }
 
-func WithJWTMaker(jwtMaker *token.JWTMaker) ApiServerOption {
+func WithJWTMaker(jwtMaker token.JWTMaker) ApiServerOption {
 	return func(s *ApiServer) {
 		s.jwtMaker = jwtMaker
 	}

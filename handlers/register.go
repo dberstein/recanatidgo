@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterHandler(db *sql.DB, jwtMaker *token.JWTMaker) gin.HandlerFunc {
+func RegisterHandler(db *sql.DB, jwtMaker token.JWTMaker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := &typ.RegisterUser{}
 		if err := c.BindJSON(user); err != nil { // Unmarshall request body ...
