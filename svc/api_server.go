@@ -18,13 +18,13 @@ import (
 type ApiServerOption func(*ApiServer)
 
 type ApiServer struct {
-	store    *store.Store
+	store    store.Storage
 	tb       *ginratelimit.TokenBucket
 	owmer    owm.Owmer
 	jwtMaker *token.JWTMaker
 }
 
-func WithStore(store *store.Store) ApiServerOption {
+func WithStore(store store.Storage) ApiServerOption {
 	return func(s *ApiServer) {
 		s.store = store
 	}
