@@ -20,8 +20,8 @@ func NewProfile(db *sql.DB) *profile {
 
 func (p *profile) Get(username string) (*typ.RegisterUser, error) {
 	var user typ.RegisterUser
-	row := p.db.QueryRow(`SELECT username, email, role FROM users WHERE username=?`, username)
-	if err := row.Scan(&user.Username, &user.Email, &user.Role); err != nil {
+	row := p.db.QueryRow(`SELECT username, email, role, pwhash FROM users WHERE username=?`, username)
+	if err := row.Scan(&user.Username, &user.Email, &user.Role, &user.Pwhash); err != nil {
 		return nil, err
 	}
 
