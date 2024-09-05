@@ -107,13 +107,13 @@ func TestRegisterMissingEmail(t *testing.T) {
 	username := time.Now().Format("2006-01-02 15:04:05.000000000")
 	exampleUser := typ.RegisterUser{
 		Username: username,
-		Email:    "testing@test.com",
+		Password: "password",
 	}
 	userJson, _ := json.Marshal(exampleUser)
 	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, req)
 	assert.Equal(400, w.Code)
-	assert.Equal(`{"error":"missing: password"}`, w.Body.String())
+	assert.Equal(`{"error":"missing: email"}`, w.Body.String())
 }
 
 func TestRegister(t *testing.T) {
