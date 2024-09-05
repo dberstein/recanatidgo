@@ -222,7 +222,7 @@ func TestGetProfileRoute(t *testing.T) {
 
 	// test good request
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("PUT", "/profile", strings.NewReader(`{}`))
+	req, _ = http.NewRequest("GET", "/profile", nil)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 
