@@ -170,13 +170,13 @@ func TestRegister(t *testing.T) {
 		"login":    tokenLogin.(string),
 	} {
 		assert.True(
-			validToken(t, token),
+			validToken(token),
 			fmt.Sprintf("token invalid: %q: %s", name, token),
 		)
 	}
 }
 
-func validToken(t *testing.T, token string) bool {
+func validToken(token string) bool {
 	router, _ := service.SetupRouter()
 
 	w := httptest.NewRecorder()
