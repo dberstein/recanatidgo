@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"time"
@@ -56,7 +57,7 @@ func NewApiServer(option ...ApiServerOption) *ApiServer {
 	return s
 }
 
-func (s *ApiServer) SetupRouter() *gin.Engine {
+func (s *ApiServer) SetupRouter() (*gin.Engine, *sql.DB) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
@@ -68,11 +69,11 @@ func (s *ApiServer) SetupRouter() *gin.Engine {
 	r.PUT("/profile", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), handlers.PutProfileHandler(db))
 	r.GET("/admin/data", mw.RateLimitByTokenMiddleware(s.tb), mw.AuthMiddleware(s.jwtMaker), mw.RoleMiddleware([]string{"admin"}), handlers.DataHandler(db, s.owmer))
 
-	return r
+	return r, db
 }
 
 func (s *ApiServer) Serve(addr string) error {
-	r := s.SetupRouter()
+	r, _ := s.SetupRouter()
 	srv := &http.Server{
 		Addr:           addr,
 		Handler:        r,
