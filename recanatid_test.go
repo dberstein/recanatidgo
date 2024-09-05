@@ -140,6 +140,9 @@ func TestRegister(t *testing.T) {
 	tokenRegister := registerResponse.(map[string]any)["token"]
 	assert.NotEqual(t, tokenRegister, "")
 
+	// pause
+	time.Sleep(500 * time.Millisecond)
+
 	w = httptest.NewRecorder()
 	reqLogin, _ := http.NewRequest("POST", "/login", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, reqLogin)
