@@ -41,6 +41,7 @@ func init() {
 }
 
 func TestAdminDataRoute(t *testing.T) {
+	assert := assert.New(t)
 	router, _ := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -48,11 +49,12 @@ func TestAdminDataRoute(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer 123")
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, 401, w.Code)
-	assert.Equal(t, `{"error":"Invalid token"}`, w.Body.String())
+	assert.Equal(401, w.Code)
+	assert.Equal(`{"error":"Invalid token"}`, w.Body.String())
 }
 
 func TestRegisterMissingAll(t *testing.T) {
+	assert := assert.New(t)
 	router, _ := service.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -60,8 +62,8 @@ func TestRegisterMissingAll(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, 400, w.Code)
-	assert.Equal(t, `{"error":"invalid request"}`, w.Body.String())
+	assert.Equal(400, w.Code)
+	assert.Equal(`{"error":"invalid request"}`, w.Body.String())
 }
 
 func TestRegisterMissingUsername(t *testing.T) {
