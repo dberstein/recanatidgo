@@ -257,15 +257,26 @@ func getToken(t *testing.T, router *gin.Engine) (string, string) {
 	return tokenRegister.(string), username
 }
 
+func jsonBodyRequest(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(method, uri, body)
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	router.ServeHTTP(w, req)
+	return w
+}
+
 func TestPutProfileRoute(t *testing.T) {
 	assert := assert.New(t)
 	router, db := service.SetupRouter()
 	profile := models.NewProfile(db)
 
-	// get token
+	// get token and created username
 	token, username := getToken(t, router)
 
-	w := putJsonRequest(router, map[string]string{
+	w := jsonBodyRequest(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"role":"test"}`))
@@ -280,7 +291,7 @@ func TestPutProfileRoute(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	// test update password changes pwhash
-	w = putJsonRequest(router, map[string]string{
+	w = jsonBodyRequest(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"password":"test"}`))
@@ -295,7 +306,7 @@ func TestPutProfileRoute(t *testing.T) {
 	assert.NotEqual(regUser.Pwhash, regUserUpdated.Pwhash)
 
 	// test update email
-	w = putJsonRequest(router, map[string]string{
+	w = jsonBodyRequest(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"email":"other@other.com"}`))
@@ -308,15 +319,4 @@ func TestPutProfileRoute(t *testing.T) {
 	assert.NotEmpty(regUser.Email)
 	assert.NotEmpty(regUserUpdated.Email)
 	assert.NotEqual(regUser.Email, regUserUpdated.Email)
-}
-
-func putJsonRequest(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(method, uri, body)
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	router.ServeHTTP(w, req)
-	return w
 }
