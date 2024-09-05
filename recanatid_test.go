@@ -176,8 +176,6 @@ func validToken(t *testing.T, token string) bool {
 	req.Header.Add("Authorization", "Bearer "+token)
 	router.ServeHTTP(w, req)
 
-	t.Log("Code", w.Code)
-
 	return w.Code > 100 && w.Code < 400
 }
 
