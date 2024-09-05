@@ -156,10 +156,16 @@ func TestRegister(t *testing.T) {
 	// do we have a different token?
 	assert.True(tokenRegister != tokenLogin)
 
-	// // test tokens
-	// for name, token := range map[string]string{"register": tokenRegister.(string), "login": tokenLogin.(string)} {
-	// 	assert.True(validToken(t, token), fmt.Sprintf("token invalid: %q: %s", name, token))
-	// }
+	// test tokens
+	for name, token := range map[string]string{
+		"register": tokenRegister.(string),
+		"login":    tokenLogin.(string),
+	} {
+		assert.True(
+			validToken(t, token),
+			fmt.Sprintf("token invalid: %q: %s", name, token),
+		)
+	}
 }
 
 func validToken(t *testing.T, token string) bool {
@@ -168,7 +174,6 @@ func validToken(t *testing.T, token string) bool {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/admin/data", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
-	t.Log("Authorization", fmt.Sprintf("Bearer %s", token))
 	router.ServeHTTP(w, req)
 
 	t.Log("Code", w.Code)

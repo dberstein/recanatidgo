@@ -34,10 +34,14 @@ func DataHandler(db *sql.DB, o owm.Owmer) gin.HandlerFunc {
 			return
 		}
 
-		owmData, err := o.Query(c.Query("location"))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+		var owmData *owm.OwmData
+
+		if o != nil {
+			owmData, err = o.Query(c.Query("location"))
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 		}
 
 		data := models.NewData(db, 3)
