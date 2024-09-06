@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -249,12 +248,12 @@ func TestLogin(t *testing.T) {
 	var dat map[string]interface{}
 
 	if err := json.Unmarshal(w.Body.Bytes(), &dat); err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 
 	token, ok := dat["token"]
 	if !ok {
-		panic(errors.New("missing: token"))
+		t.Fatal("missing: token")
 	}
 	assert.NotEmpty(token)
 }
