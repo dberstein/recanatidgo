@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -39,6 +40,83 @@ func init() {
 		// svc.WithOwmer(owm.NewOwm(*owmPtr)),
 		svc.WithJWTMaker(token.NewJWTMaker([]byte("secret"))),
 	)
+}
+
+func createUser(t *testing.T, role string) (string, string, []byte) {
+	assert := assert.New(t)
+	router, _ := service.SetupRouter()
+
+	w := httptest.NewRecorder()
+	username := time.Now().Format("2006-01-02 15:04:05.000000000")
+	exampleUser := typ.RegisterUser{
+		Username: username,
+		Password: "secret",
+		Email:    "testing@test.com",
+		Role:     role,
+	}
+	userJson, _ := json.Marshal(exampleUser)
+	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
+	router.ServeHTTP(w, req)
+	assert.Equal(200, w.Code)
+
+	var registerResponse any
+	err := json.Unmarshal(w.Body.Bytes(), &registerResponse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// token from registration
+	tokenRegister := registerResponse.(map[string]any)["token"]
+	assert.NotEqual(t, tokenRegister.(string), "")
+
+	return username, tokenRegister.(string), userJson
+}
+
+func createAdminToken(t *testing.T, router *gin.Engine) (string, string) {
+	// register user
+	w := httptest.NewRecorder()
+	username := time.Now().Format("2006-01-02 15:04:05.000000000")
+	exampleUser := typ.RegisterUser{
+		Username: username,
+		Password: "secret",
+		Email:    "testing@test.com",
+		Role:     "admin",
+	}
+	userJson, _ := json.Marshal(exampleUser)
+	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
+	router.ServeHTTP(w, req)
+
+	var registerResponse any
+	err := json.Unmarshal(w.Body.Bytes(), &registerResponse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// token from registration
+	tokenRegister := registerResponse.(map[string]any)["token"]
+
+	// return token
+	return tokenRegister.(string), username
+}
+
+func isTokenValid(token string, uri string) bool {
+	router, _ := service.SetupRouter()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", uri, nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	router.ServeHTTP(w, req)
+
+	return w.Code > 100 && w.Code < 400
+}
+
+func jsonBodyRequest(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(method, uri, body)
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	router.ServeHTTP(w, req)
+	return w
 }
 
 func TestAdminDataRoute(t *testing.T) {
@@ -123,38 +201,18 @@ func TestRegister(t *testing.T) {
 	assert := assert.New(t)
 	router, _ := service.SetupRouter()
 
-	w := httptest.NewRecorder()
-	username := time.Now().Format("2006-01-02 15:04:05.000000000")
-	exampleUser := typ.RegisterUser{
-		Username: username,
-		Password: "secret",
-		Email:    "testing@test.com",
-		Role:     "admin",
-	}
-	userJson, _ := json.Marshal(exampleUser)
-	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
-	router.ServeHTTP(w, req)
-	assert.Equal(200, w.Code)
-
-	var registerResponse any
-	err := json.Unmarshal(w.Body.Bytes(), &registerResponse)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// token from registration
-	tokenRegister := registerResponse.(map[string]any)["token"]
-	assert.NotEqual(t, tokenRegister.(string), "")
+	_, tokenRegister, userJson := createUser(t, "admin")
 
 	// pause
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
-	w = httptest.NewRecorder()
+	w := httptest.NewRecorder()
 	reqLogin, _ := http.NewRequest("POST", "/login", strings.NewReader(string(userJson)))
 	router.ServeHTTP(w, reqLogin)
 	assert.Equal(200, w.Code)
 
 	var loginResponse any
-	err = json.Unmarshal(w.Body.Bytes(), &loginResponse)
+	err := json.Unmarshal(w.Body.Bytes(), &loginResponse)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,38 +224,39 @@ func TestRegister(t *testing.T) {
 
 	// test tokens
 	for name, token := range map[string]string{
-		"register": tokenRegister.(string),
+		"register": tokenRegister,
 		"login":    tokenLogin.(string),
 	} {
 		assert.True(
-			validToken(token),
+			isTokenValid(token, "/admin/data"),
 			fmt.Sprintf("token invalid: %q: %s", name, token),
 		)
 	}
-}
-
-func validToken(token string) bool {
-	router, _ := service.SetupRouter()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/admin/data", nil)
-	req.Header.Add("Authorization", "Bearer "+token)
-	router.ServeHTTP(w, req)
-
-	return w.Code > 100 && w.Code < 400
 }
 
 func TestLogin(t *testing.T) {
 	assert := assert.New(t)
 	router, _ := service.SetupRouter()
 
+	username, _, _ := createUser(t, "regular")
+
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/login", nil)
-
+	req, _ := http.NewRequest("POST", "/login", strings.NewReader(fmt.Sprintf(`{"username": "%s", "password":"secret"}`, username)))
 	router.ServeHTTP(w, req)
+	assert.Equal(200, w.Code)
 
-	assert.Equal(404, w.Code)
-	assert.Equal(`404 page not found`, w.Body.String())
+	// response body should be JSON of the form '{"token": "..."}
+	var dat map[string]interface{}
+
+	if err := json.Unmarshal(w.Body.Bytes(), &dat); err != nil {
+		panic(err)
+	}
+
+	token, ok := dat["token"]
+	if !ok {
+		panic(errors.New("missing: token"))
+	}
+	assert.NotEmpty(token)
 }
 
 func TestGetProfileRoute(t *testing.T) {
@@ -220,7 +279,7 @@ func TestGetProfileRoute(t *testing.T) {
 	// assert.Equal(`{"error":"Invalid token"}`, w.Body.String())
 
 	// get token
-	token, _ := getToken(t, router)
+	token, _ := createAdminToken(t, router)
 
 	// test good request
 	w = httptest.NewRecorder()
@@ -233,50 +292,13 @@ func TestGetProfileRoute(t *testing.T) {
 	assert.Equal(200, w.Code)
 }
 
-func getToken(t *testing.T, router *gin.Engine) (string, string) {
-	// register user
-	w := httptest.NewRecorder()
-	username := time.Now().Format("2006-01-02 15:04:05.000000000")
-	exampleUser := typ.RegisterUser{
-		Username: username,
-		Password: "secret",
-		Email:    "testing@test.com",
-		Role:     "admin",
-	}
-	userJson, _ := json.Marshal(exampleUser)
-	req, _ := http.NewRequest("POST", "/register", strings.NewReader(string(userJson)))
-	router.ServeHTTP(w, req)
-
-	var registerResponse any
-	err := json.Unmarshal(w.Body.Bytes(), &registerResponse)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// token from registration
-	tokenRegister := registerResponse.(map[string]any)["token"]
-
-	// return token
-	return tokenRegister.(string), username
-}
-
-func jsonBodyRequest(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(method, uri, body)
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
-
-	router.ServeHTTP(w, req)
-	return w
-}
-
 func TestPutProfileRoute(t *testing.T) {
 	assert := assert.New(t)
 	router, db := service.SetupRouter()
 	profile := models.NewProfile(db)
 
 	// get token and created username
-	token, username := getToken(t, router)
+	token, username := createAdminToken(t, router)
 
 	w := jsonBodyRequest(router, map[string]string{
 		"Content-Type":  "application/json",
@@ -290,7 +312,7 @@ func TestPutProfileRoute(t *testing.T) {
 	}
 
 	assert.Equal(regUser.Role, "test")
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	// test update password changes pwhash
 	w = jsonBodyRequest(router, map[string]string{
