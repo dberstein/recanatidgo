@@ -28,6 +28,22 @@ func (p *profile) Get(username string) (*typ.RegisterUser, error) {
 	return &user, nil
 }
 
+func (p *profile) UpdatePassword(db *sql.DB, user *typ.RegisterUser) error {
+	// change of password means updated `pwhash`
+	hasher := NewHasher()
+	pwhash, err := hasher.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`UPDATE users SET pwhash = ? WHERE username = ?`, &pwhash, &user.Username)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	if user.Email != "" {
 		_, err := p.db.Exec(`UPDATE users SET email = ? WHERE username = ?`, &user.Email, &user.Username)
@@ -37,13 +53,7 @@ func (p *profile) Update(db *sql.DB, user *typ.RegisterUser) error {
 	}
 
 	if user.Password != "" {
-		hash := NewHasher()
-		pwhash, err := hash.HashPassword(user.Password)
-		if err != nil {
-			return err
-		}
-
-		_, err = db.Exec(`UPDATE users SET pwhash = ? WHERE username = ?`, &pwhash, &user.Username)
+		err := p.UpdatePassword(db, user)
 		if err != nil {
 			return err
 		}
