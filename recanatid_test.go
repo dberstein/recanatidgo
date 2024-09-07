@@ -253,9 +253,23 @@ func TestLogin(t *testing.T) {
 
 	token, ok := dat["token"]
 	if !ok {
-		t.Fatal("missing: token")
+		t.Fatal("response missing: token")
 	}
 	assert.NotEmpty(token)
+
+	// test bad password
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/login", strings.NewReader(fmt.Sprintf(`{"username": "%s", "password":"badpassword"}`, username)))
+	router.ServeHTTP(w, req)
+	assert.Equal(401, w.Code)
+	assert.Equal(`{"error":"Invalid credentials"}`, w.Body.String())
+
+	// test broken json
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/login", strings.NewReader(fmt.Sprintf(`{"username": "%s", "password":`, username)))
+	router.ServeHTTP(w, req)
+	assert.Equal(400, w.Code)
+	assert.Equal(`{"error":"unexpected EOF"}`, w.Body.String())
 }
 
 func TestGetProfileRoute(t *testing.T) {
