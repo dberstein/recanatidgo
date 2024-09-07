@@ -313,6 +313,7 @@ func TestPutProfileRoute(t *testing.T) {
 	// get token and created username
 	token, username := createAdminToken(t, router)
 
+	// test updating "role"...
 	w := requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
@@ -323,11 +324,10 @@ func TestPutProfileRoute(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assert.Equal(regUser.Role, "test") // was 'admin' should bbe now 'test'
 
-	assert.Equal(regUser.Role, "test")
+	// test update password changes pwhash...
 	time.Sleep(100 * time.Millisecond)
-
-	// test update password changes pwhash
 	w = requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
@@ -342,7 +342,7 @@ func TestPutProfileRoute(t *testing.T) {
 	assert.NotEmpty(regUserUpdated.Pwhash)
 	assert.NotEqual(regUser.Pwhash, regUserUpdated.Pwhash)
 
-	// test update email
+	// test update email...
 	w = requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
