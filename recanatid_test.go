@@ -107,7 +107,7 @@ func isTokenValid(token string, uri string) bool {
 	return w.Code > 100 && w.Code < 400
 }
 
-func jsonBodyRequest(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
+func requestWithBody(router *gin.Engine, headers map[string]string, method string, uri string, body io.Reader) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(method, uri, body)
 	for key, value := range headers {
@@ -299,7 +299,7 @@ func TestPutProfileRoute(t *testing.T) {
 	// get token and created username
 	token, username := createAdminToken(t, router)
 
-	w := jsonBodyRequest(router, map[string]string{
+	w := requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"role":"test"}`))
@@ -314,7 +314,7 @@ func TestPutProfileRoute(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// test update password changes pwhash
-	w = jsonBodyRequest(router, map[string]string{
+	w = requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"password":"test"}`))
@@ -329,7 +329,7 @@ func TestPutProfileRoute(t *testing.T) {
 	assert.NotEqual(regUser.Pwhash, regUserUpdated.Pwhash)
 
 	// test update email
-	w = jsonBodyRequest(router, map[string]string{
+	w = requestWithBody(router, map[string]string{
 		"Content-Type":  "application/json",
 		"Authorization": fmt.Sprintf("Bearer %s", token),
 	}, "PUT", "/profile", strings.NewReader(`{"email":"other@other.com"}`))
