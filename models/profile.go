@@ -35,7 +35,7 @@ func (p *profile) UpdatePassword(db *sql.DB, user *typ.RegisterUser) error {
 	if err != nil {
 		return err
 	}
-
+	user.Pwhash = pwhash
 	_, err = db.Exec(`UPDATE users SET pwhash = ? WHERE username = ?`, &pwhash, &user.Username)
 	if err != nil {
 		return err
